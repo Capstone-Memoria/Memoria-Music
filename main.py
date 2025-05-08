@@ -15,6 +15,12 @@ from fastapi.middleware.cors import CORSMiddleware
 from sse_starlette.sse import EventSourceResponse
 from pydantic import BaseModel
 
+import logging
+
+# 로깅 설정
+logging.basicConfig(level=logging.INFO,
+                    format='%(asctime)s - %(levelname)s - %(message)s')
+
 # 설정값 및 상수
 # 상위 디렉토리의 경로를 사용하도록 수정
 ROOT_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -80,12 +86,15 @@ async def process_music_generation_queue():
 
     while True:
         # 큐에서 작업 가져오기
+        logging.info("음악 생성 큐에서 다음 작업을 기다리는 중...")
         job_id, genre_txt, lyrics_txt = await job_queue.get()
+        logging.info(f"작업 시작: {job_id}")
 
         async with job_lock:
             active_job = job_id
             job_statuses[job_id]["status"] = "processing"
             job_update_event.set()
+            logging.info(f"작업 상태 업데이트: {job_id} -> processing")
 
         success = False
         result_file = None
@@ -93,10 +102,12 @@ async def process_music_generation_queue():
 
         try:
             # 로컬 파일에 장르와 가사 저장
+            logging.info(f"작업 {job_id}: 장르 및 가사 파일 저장")
             with open(GENRE_FILE_PATH, "w", encoding="utf-8") as f:
                 f.write(genre_txt)
             with open(LYRICS_FILE_PATH, "w", encoding="utf-8") as f:
                 f.write(lyrics_txt)
+            logging.info(f"작업 {job_id}: 장르 및 가사 파일 저장 완료")
 
             # infer.py 스크립트 실행
             cmd = [
@@ -105,12 +116,14 @@ async def process_music_generation_queue():
                 "--stage1_use_exl2",
                 "--stage2_use_exl2",
                 "--stage2_cache_size", "32768",
-                "--genre_txt", GENRE_FILE_PATH,  # 로컬 파일 경로 사용
-                "--lyrics_txt", LYRICS_FILE_PATH,  # 로컬 파일 경로 사용
+                "--genre_txt", GENRE_FILE_PATH,
+                "--lyrics_txt", LYRICS_FILE_PATH,
                 "--stage1_model", STAGE1_MODEL,
                 "--stage2_model", STAGE2_MODEL
             ]
 
+            logging.info(
+                f"작업 {job_id}: infer.py 스크립트 실행 시작 - 명령어: {' '.join(cmd)}")
             # 비동기로 외부 프로세스 실행
             process = await asyncio.create_subprocess_exec(
                 *cmd,
@@ -124,8 +137,10 @@ async def process_music_generation_queue():
 
             if process.returncode != 0:
                 error_message = f"음악 생성 실패: {stderr.decode('utf-8')}"
+                logging.error(f"작업 {job_id}: 스크립트 실행 오류 - {error_message}")
                 raise Exception(error_message)
 
+            logging.info(f"작업 {job_id}: infer.py 스크립트 실행 성공")
             # 생성된 MP3 파일 경로
             output_file_path = os.path.join(
                 DEFAULT_OUTPUT_DIR, DEFAULT_OUTPUT_FILENAME)
@@ -133,18 +148,22 @@ async def process_music_generation_queue():
             # 파일이 존재하는지 확인
             if not os.path.exists(output_file_path):
                 error_message = "생성된 음악 파일을 찾을 수 없습니다."
+                logging.error(f"작업 {job_id}: 출력 파일 없음 - {output_file_path}")
                 raise Exception(error_message)
 
+            logging.info(f"작업 {job_id}: 출력 파일 발견 - {output_file_path}")
             # 결과 파일 이름 생성 및 복사
             final_file_name = f"{job_id}.mp3"
             final_file_path = os.path.join(FINAL_MUSIC_DIR, final_file_name)
             shutil.copy2(output_file_path, final_file_path)
+            logging.info(f"작업 {job_id}: 출력 파일 복사 완료 - {final_file_path}")
 
             success = True
             result_file = final_file_path
 
         except Exception as e:
             error_message = str(e)
+            logging.error(f"작업 {job_id}: 처리 중 예외 발생 - {error_message}")
 
         finally:
             # 임시 파일 정리 로직 제거 (로컬 파일 사용)
@@ -155,19 +174,24 @@ async def process_music_generation_queue():
                 if success:
                     job_statuses[job_id]["status"] = "completed"
                     job_statuses[job_id]["file_path"] = result_file
+                    logging.info(f"작업 {job_id}: 상태 업데이트 -> completed")
                 else:
                     job_statuses[job_id]["status"] = "failed"
                     job_statuses[job_id]["error"] = error_message
+                    logging.info(
+                        f"작업 {job_id}: 상태 업데이트 -> failed - {error_message}")
 
                 job_statuses[job_id]["completed_at"] = datetime.now(
                 ).isoformat()
                 active_job = None
+                logging.info(f"작업 {job_id}: 처리 완료. active_job 초기화.")
 
                 # 이벤트 발생시켜 SSE 알림
                 job_update_event.set()
 
             # 작업 완료 표시
             job_queue.task_done()
+            logging.info(f"작업 {job_id}: 큐 작업 완료 표시")
 
 
 @app.on_event("startup")
