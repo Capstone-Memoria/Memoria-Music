@@ -16,6 +16,7 @@ from sse_starlette.sse import EventSourceResponse
 from pydantic import BaseModel
 
 import logging
+import json
 
 # 로깅 설정
 logging.basicConfig(level=logging.INFO,
@@ -356,10 +357,10 @@ async def sse_events():
                 # 모든 작업 상태 전송
                 yield {
                     "event": "job_update",
-                    "data": {
+                    "data": json.dumps({
                         "active_job": active_job,
                         "jobs": job_statuses
-                    }
+                    })
                 }
 
             # 짧은 대기 시간 추가
