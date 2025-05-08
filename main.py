@@ -336,9 +336,17 @@ async def sse_events():
     """SSE를 통해 음악 생성 작업 상태 업데이트를 스트리밍합니다."""
     async def event_generator():
         while True:
-            # 이벤트 대기
-            if not job_update_event.is_set():
-                await job_update_event.wait()
+            # 이벤트 대기 또는 주기적인 신호 전송
+            try:
+                # 20초 타임아웃 설정
+                await asyncio.wait_for(job_update_event.wait(), timeout=20.0)
+            except asyncio.TimeoutError:
+                # 타임아웃 발생 시 keep-alive 신호 전송
+                yield {
+                    "event": "keep_alive",
+                    "data": "ping"
+                }
+                continue  # 다음 루프 실행
 
             # 현재 상태 정보
             async with job_lock:
