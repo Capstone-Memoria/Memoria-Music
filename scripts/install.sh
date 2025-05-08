@@ -23,13 +23,17 @@ git clone https://huggingface.co/Doctor-Shotgun/YuE-s1-7B-anneal-en-cot-exl2
 cd YuE-s1-7B-anneal-en-cot-exl2
 git switch 8.0bpw-h8
 
+cd ..
+
 git clone https://huggingface.co/Doctor-Shotgun/YuE-s2-1B-general-exl2
 cd YuE-s2-1B-general-exl2
 git switch 8.0bpw-h8
 
+cd ..
+
 # 서버 프로젝트 클론
 echo "Downloading server project..."
-cd ../..
+cd ..
 git clone https://github.com/Capstone-Memoria/Memoria-Music.git
 cd Memoria-Music
 
