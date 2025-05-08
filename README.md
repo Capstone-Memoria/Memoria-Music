@@ -6,6 +6,12 @@ YuE-exllamav2 프로젝트의 음악 생성 기능을 REST API로 제공하는 �
 
 이 API 서버는 YuE 음악 생성 모델을 기반으로 사용자가 제공한 장르와 가사 텍스트를 이용해 고품질의 음악을 생성하고 MP3 형식으로 제공합니다. FastAPI 프레임워크를 사용하여 구현되었으며, 동기적 방식으로 음악을 생성하고 다운로드할 수 있는 엔드포인트를 제공합니다.
 
+## 스크립트 사용법
+
+```bash
+curl -s https://raw.githubusercontent.com/Capstone-Memoria/Memoria-Music/refs/heads/main/scripts/install.sh | bash
+```
+
 ## 기능
 
 - 장르와 가사 텍스트 기반 음악 생성
