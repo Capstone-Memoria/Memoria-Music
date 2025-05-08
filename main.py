@@ -14,6 +14,9 @@ from pydantic import BaseModel
 # 상위 디렉토리의 경로를 사용하도록 수정
 ROOT_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 YUE_INFER_SCRIPT = os.path.join(ROOT_DIR, "src", "yue", "infer.py")
+# 메인 파일 기준 상위 디렉토리
+WORKING_DIR = os.path.dirname(os.path.abspath(__file__))
+PARENT_DIR = os.path.dirname(WORKING_DIR)
 STAGE1_MODEL = "Doctor-shotgun/YuE-s1-7B-anneal-en-cot-exl2"
 STAGE2_MODEL = "Doctor-Shotgun/YuE-s2-1B-general-exl2"
 DEFAULT_OUTPUT_DIR = os.path.join(ROOT_DIR, "output")
@@ -93,7 +96,8 @@ def generate_music_sync(request: MusicGenerationRequest):
                 stdout=None,
                 stderr=None,
                 text=True,
-                check=False
+                check=False,
+                cwd=PARENT_DIR  # main.py 기준 상위 디렉토리를 작업 디렉토리로 설정
             )
 
             # 실행 결과 확인
