@@ -2,8 +2,8 @@
 
 # 가상 환경 생성 및 활성화
 echo "Creating and activating virtual environment..."
-python -m venv venv
-source venv/bin/activate
+virtualenv venv
+. venv/Scripts/activate.fish
 
 # 가상 환경에 pip 및 wheel 설치/업그레이드
 echo "Installing/upgrading pip and wheel in virtual environment..."
