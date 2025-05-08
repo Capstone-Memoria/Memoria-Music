@@ -28,6 +28,10 @@ DEFAULT_OUTPUT_DIR = os.path.join(ROOT_DIR, "output")
 DEFAULT_OUTPUT_FILENAME = "mixed.mp3"
 FINAL_MUSIC_DIR = os.path.join(ROOT_DIR, "generated_music")
 
+# 로컬 프롬프트 파일 경로
+GENRE_FILE_PATH = os.path.join(ROOT_DIR, "input", "genre.txt")
+LYRICS_FILE_PATH = os.path.join(ROOT_DIR, "input", "lyrics.txt")
+
 # 음악 생성 처리 상태를 추적하는 변수와 락
 is_generating_music = False
 generation_lock = threading.Lock()
@@ -35,6 +39,7 @@ generation_lock = threading.Lock()
 # 디렉토리 생성
 os.makedirs(DEFAULT_OUTPUT_DIR, exist_ok=True)
 os.makedirs(FINAL_MUSIC_DIR, exist_ok=True)
+os.makedirs(os.path.join(ROOT_DIR, "input"), exist_ok=True)  # 입력 디렉토리 생성
 
 # 요청 큐 및 상태 관리
 job_queue = asyncio.Queue()
@@ -87,16 +92,11 @@ async def process_music_generation_queue():
         error_message = None
 
         try:
-            # 임시 파일 생성
-            genre_file = tempfile.NamedTemporaryFile(
-                mode='w+', suffix='.txt', delete=False)
-            genre_file.write(genre_txt)
-            genre_file.close()
-
-            lyrics_file = tempfile.NamedTemporaryFile(
-                mode='w+', suffix='.txt', delete=False)
-            lyrics_file.write(lyrics_txt)
-            lyrics_file.close()
+            # 로컬 파일에 장르와 가사 저장
+            with open(GENRE_FILE_PATH, "w", encoding="utf-8") as f:
+                f.write(genre_txt)
+            with open(LYRICS_FILE_PATH, "w", encoding="utf-8") as f:
+                f.write(lyrics_txt)
 
             # infer.py 스크립트 실행
             cmd = [
@@ -105,8 +105,8 @@ async def process_music_generation_queue():
                 "--stage1_use_exl2",
                 "--stage2_use_exl2",
                 "--stage2_cache_size", "32768",
-                "--genre_txt", genre_file.name,
-                "--lyrics_txt", lyrics_file.name,
+                "--genre_txt", GENRE_FILE_PATH,  # 로컬 파일 경로 사용
+                "--lyrics_txt", LYRICS_FILE_PATH,  # 로컬 파일 경로 사용
                 "--stage1_model", STAGE1_MODEL,
                 "--stage2_model", STAGE2_MODEL
             ]
@@ -147,14 +147,8 @@ async def process_music_generation_queue():
             error_message = str(e)
 
         finally:
-            # 임시 파일 정리
-            try:
-                if 'genre_file' in locals() and os.path.exists(genre_file.name):
-                    os.unlink(genre_file.name)
-                if 'lyrics_file' in locals() and os.path.exists(lyrics_file.name):
-                    os.unlink(lyrics_file.name)
-            except Exception:
-                pass
+            # 임시 파일 정리 로직 제거 (로컬 파일 사용)
+            pass
 
             # 작업 완료 상태 업데이트
             async with job_lock:
@@ -231,16 +225,11 @@ def generate_music_sync(request: MusicGenerationRequest):
         lyrics_file = None
 
         try:
-            # 장르와 가사를 임시 파일로 저장
-            genre_file = tempfile.NamedTemporaryFile(
-                mode='w+', suffix='.txt', delete=False)
-            genre_file.write(request.genre_txt)
-            genre_file.close()
-
-            lyrics_file = tempfile.NamedTemporaryFile(
-                mode='w+', suffix='.txt', delete=False)
-            lyrics_file.write(request.lyrics_txt)
-            lyrics_file.close()
+            # 장르와 가사를 로컬 파일로 저장
+            with open(GENRE_FILE_PATH, "w", encoding="utf-8") as f:
+                f.write(request.genre_txt)
+            with open(LYRICS_FILE_PATH, "w", encoding="utf-8") as f:
+                f.write(request.lyrics_txt)
 
             # infer.py 스크립트 실행 명령어 구성
             cmd = [
@@ -249,8 +238,8 @@ def generate_music_sync(request: MusicGenerationRequest):
                 "--stage1_use_exl2",
                 "--stage2_use_exl2",
                 "--stage2_cache_size", "32768",
-                "--genre_txt", genre_file.name,
-                "--lyrics_txt", lyrics_file.name,
+                "--genre_txt", GENRE_FILE_PATH,  # 로컬 파일 경로 사용
+                "--lyrics_txt", LYRICS_FILE_PATH,  # 로컬 파일 경로 사용
                 "--stage1_model", STAGE1_MODEL,
                 "--stage2_model", STAGE2_MODEL
             ]
@@ -300,11 +289,8 @@ def generate_music_sync(request: MusicGenerationRequest):
                 status_code=500, detail=f"음악 생성 중 오류 발생: {str(e)}")
 
         finally:
-            # 임시 파일 정리
-            if genre_file and os.path.exists(genre_file.name):
-                os.unlink(genre_file.name)
-            if lyrics_file and os.path.exists(lyrics_file.name):
-                os.unlink(lyrics_file.name)
+            # 임시 파일 정리 로직 제거 (로컬 파일 사용)
+            pass
 
     finally:
         # 처리 완료 후 상태 업데이트 및 락 해제
