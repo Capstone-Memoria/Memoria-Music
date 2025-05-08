@@ -27,3 +27,13 @@ git clone https://huggingface.co/Doctor-Shotgun/YuE-s2-1B-general-exl2
 cd YuE-s2-1B-general-exl2
 git switch 8.0bpw-h8
 
+# 서버 프로젝트 클론
+echo "Downloading server project..."
+cd ../..
+git clone https://github.com/Capstone-Memoria/Memoria-Music.git
+cd Memoria-Music
+
+# 서버 프로젝트 설치
+echo "Installing server project..."
+pip install -r requirements-api.txt
+
