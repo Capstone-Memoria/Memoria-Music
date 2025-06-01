@@ -29,7 +29,7 @@ YUE_INFER_SCRIPT = os.path.join(ROOT_DIR, "src", "yue", "infer.py")
 # 메인 파일 기준 상위 디렉토리
 WORKING_DIR = os.path.dirname(os.path.abspath(__file__))
 PARENT_DIR = os.path.dirname(WORKING_DIR)
-STAGE1_MODEL = "m-a-p/YuE-s1-7B-anneal-en-cot"
+STAGE1_MODEL = "m-a-p/YuE-s1-7B-anneal-jp-kr-cot"
 STAGE2_MODEL = "m-a-p/YuE-s2-1B-general"
 DEFAULT_OUTPUT_DIR = os.path.join(ROOT_DIR, "output")
 DEFAULT_OUTPUT_FILENAME = "mixed.mp3"

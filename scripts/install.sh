@@ -19,7 +19,7 @@ pip install -r requirements.txt
 echo "Downloading models..."
 mkdir -p m-a-p
 cd m-a-p
-git clone https://huggingface.co/m-a-p/YuE-s1-7B-anneal-en-cot
+git clone https://huggingface.co/m-a-p/YuE-s1-7B-anneal-jp-kr-cot
 
 git clone https://huggingface.co/m-a-p/YuE-s2-1B-general
 
@@ -28,7 +28,7 @@ echo "Downloading server project..."
 cd ..
 git clone https://github.com/Capstone-Memoria/Memoria-Music.git
 cd Memoria-Music
-git switch quality
+git switch quality-kr
 
 # 서버 프로젝트 설치
 echo "Installing server project..."
