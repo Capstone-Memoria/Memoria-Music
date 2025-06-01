@@ -17,19 +17,11 @@ pip install -r requirements.txt
 
 # 모델 다운로드
 echo "Downloading models..."
-mkdir -p Doctor-shotgun
-cd Doctor-shotgun
-git clone https://huggingface.co/Doctor-Shotgun/YuE-s1-7B-anneal-en-cot-exl2
-cd YuE-s1-7B-anneal-en-cot-exl2
-git switch 8.0bpw-h8
+mkdir -p m-a-p
+cd m-a-p
+git clone https://huggingface.co/m-a-p/YuE-s1-7B-anneal-en-cot
 
-cd ..
-
-git clone https://huggingface.co/Doctor-Shotgun/YuE-s2-1B-general-exl2
-cd YuE-s2-1B-general-exl2
-git switch 8.0bpw-h8
-
-cd ..
+git clone https://huggingface.co/m-a-p/YuE-s2-1B-general
 
 # 서버 프로젝트 클론
 echo "Downloading server project..."
