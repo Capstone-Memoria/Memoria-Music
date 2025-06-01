@@ -28,6 +28,7 @@ echo "Downloading server project..."
 cd ..
 git clone https://github.com/Capstone-Memoria/Memoria-Music.git
 cd Memoria-Music
+git switch quality
 
 # 서버 프로젝트 설치
 echo "Installing server project..."
