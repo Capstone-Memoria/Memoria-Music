@@ -116,6 +116,7 @@ async def process_music_generation_queue():
                 YUE_INFER_SCRIPT,
                 "--stage1_use_exl2",
                 "--stage2_use_exl2",
+                "--stage1_cache_size", "16384",
                 "--stage2_cache_size", "32768",
                 "--genre_txt", GENRE_FILE_PATH,
                 "--lyrics_txt", LYRICS_FILE_PATH,
