@@ -20,7 +20,7 @@ if [ -f "$PID_FILE" ]; then
 fi
 
 #venv activate
-source "$ROOT_DIR/venv/bin/activate"
+source "$ROOT_DIR/../venv/bin/activate"
 
 # 서버 실행
 echo "FastAPI 서버를 시작합니다..."
