@@ -17,6 +17,8 @@ cd Memoria-Music
 echo "Installing server project..."
 pip install -r requirements-api.txt
 
+cd scripts
+
 # 서버 실행
 echo "Starting server..."
 ./start.sh
