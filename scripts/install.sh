@@ -12,6 +12,9 @@ git clone https://github.com/sgsdxzy/YuE-exllamav2
 cd YuE-exllamav2
 git clone https://huggingface.co/m-a-p/xcodec_mini_infer
 
+python -m venv venv
+source ./venv/bin/activate
+
 # requirements.txt 설치
 pip install -r requirements.txt
 
@@ -28,7 +31,6 @@ echo "Downloading server project..."
 cd ..
 git clone https://github.com/Capstone-Memoria/Memoria-Music.git
 cd Memoria-Music
-git switch quality
 
 # 서버 프로젝트 설치
 echo "Installing server project..."
