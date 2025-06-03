@@ -34,3 +34,6 @@ git switch quality
 echo "Installing server project..."
 pip install -r requirements-api.txt
 
+# 서버 실행
+echo "Starting server..."
+./start.sh

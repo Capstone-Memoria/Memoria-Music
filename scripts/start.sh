@@ -29,3 +29,6 @@ PID=$!
 echo $PID > "$PID_FILE"
 echo "서버가 시작되었습니다. PID: $PID"
 echo "로그는 server.log 파일에서 확인할 수 있습니다." 
+
+# 로그 표시
+tail -f "$ROOT_DIR/server.log"
